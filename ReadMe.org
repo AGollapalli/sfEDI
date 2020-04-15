@@ -1,6 +1,6 @@
 #+TITLE: SF EDI (sfEDI)
 
-* What is SF EDI?
+** What is SF EDI?
 SF EDI is an EDI library. The S in SF EDI stands for "simple" and I'll allow you
 to guess what the F means. If you've been frustrated, bamboozled, kerfuffled, or
 otherwise stymied by other EDI libraries, well boy have I got the library for
