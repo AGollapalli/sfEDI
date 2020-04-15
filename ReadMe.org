@@ -282,4 +282,7 @@ And that's how you build an EDI file the SF EDI way! No obfuscation! No tricks.
 Conformant to the datastructure instead of trying to force it into being more of
 an object than a list. Decoding is basically the same as the above, but in
 reverse. EDI simplified. And if you still find EDI too difficult or annoying,
-then you should [[mailto:acgollapalli@jnasquare.com][call up my consultancy, JNA Square]], and we'll help you get going with it!
+then you should [[mailto:acgollapalli@jnasquare.com][call up my consultancy, JNA Square]], and we'll help you get going
+with it! If you're looking to move away from EDI to a more modern (newfangled?)
+approach, then you should also contact us, as we're B2B integration and
+automation specialists!
