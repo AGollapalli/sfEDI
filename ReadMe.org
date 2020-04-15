@@ -30,8 +30,8 @@ while we prefer our JSON over the CSV, and consequently prefer our document
 stores over the ol-reliable RDBMS, the practitioners of the old-ways thought in
 lines. And an EDI file, though perhaps a step towards the new ways of objects,
 is nevertheless a product of the old ways, of a time steeped in lines and
-semicolons and all manner of other things today long forgotten (let's just
-forget that this is written in C# which uses semicolons for a second).
+semicolons and all manner of other things today long forgotten (for a second
+let's just forget that this is written in C#, which also uses semicolons).
 
 So what does that mean for our EDI file? What IS an EDI file? An EDI file is a
 list of lines. What is each of those lines? Why, it's a segment! And what is a
@@ -49,7 +49,7 @@ code. Which brings us to...
 ** What do most C# EDI libraries do wrong?
 Most EDI libraries try to treat EDI documents as objects. In doing so they
 assign numerous aribtrary unnecessary constraints to the relatively simple, if
-utterly prepossessing EDI document.
+utterly unprepossessing EDI document.
 
 So the workflow is something like this. You get a document template (or worse,
 have to create one) like say... an X12 210. So you have (or make) an 210 class
