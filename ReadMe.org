@@ -284,5 +284,5 @@ an object than a list. Decoding is basically the same as the above, but in
 reverse. EDI simplified. And if you still find EDI too difficult or annoying,
 then you should [[mailto:acgollapalli@jnasquare.com][call up my consultancy, JNA Square]], and we'll help you get going
 with it! If you're looking to move away from EDI to a more modern (newfangled?)
-approach, then you should also contact us, as we're B2B integration and
-automation specialists!
+approach, like using REST API's or stream processing, then you should also
+contact us, as we're B2B integration and automation specialists!
