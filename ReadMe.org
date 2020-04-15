@@ -84,7 +84,7 @@ that looks something like this:
 
         public List<LineItem> LineItems { get; set; }
     }
-#+BEGIN_SRC
+#+END_SRC
 
 And then, you create another class with a method that iterates through that
 entire class again, which means YOU have to iterate through the entire document
