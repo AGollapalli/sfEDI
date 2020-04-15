@@ -1,0 +1,285 @@
+#+TITLE: SF EDI (sfEDI)
+
+* What is SF EDI?
+SF EDI is an EDI library. The S in SF EDI stands for "simple" and I'll allow you
+to guess what the F means. If you've been frustrated, bamboozled, kerfuffled, or
+otherwise stymied by other EDI libraries, well boy have I got the library for
+you! In 150 lines of C#, I've provided the simple utils required to build EDI
+documents in the dotnet ecosystem, without ridiculous overcomplication, weird
+constraints, COBOL syntax (yes, it's a thing), randomly having your library stop
+working after two weeks because the nuget package you downloaded turned out to
+be not so free even though it used to be free (EDI Fabric I'm looking at you),
+and the fork of it turned out to not support some crucial feature that you
+needed. And despite every ounce of your highly sophisticated, slightly
+hacker-hipsterish body yelling at you to tell them "Let's just build a REST API,
+and use JSON!!!", you can't, because EDI is what the industry uses, and that's
+what your company/client wants, and so that's what you're going to build, until
+you can convince the people who actually decide what you get to do to move to a
+fancy event driven architecture with your perfect, pretty stream-processer/
+dynamic web-api builder built on top of a bitemporal graph database written in a
+lisp. (I swear that's not a meme, <insert link to dataworks-prototype here>)
+
+Anyway, the truth of the matter is that EDI is old tech. It's tech from the
+early days of the cold war, and like all old tech, it's not written in the way
+that we think now, it's written in the old ways. While we young guys think in
+objects (like JSON, JavaScript OBJECT Notation), the old guys thought in lines.
+What's a csv file? It's a list of lines. What is each line? It's a list of
+values separated by commas. What's a relational database table? It's also a list
+of lines, except instead of commas, we denote the values by column-names. So
+while we prefer our JSON over the CSV, and consequently prefer our document
+stores over the ol-reliable RDBMS, the practitioners of the old-ways thought in
+lines. And an EDI file, though perhaps a step towards the new ways of objects,
+is nevertheless a product of the old ways, of a time steeped in lines and
+semicolons and all manner of other things today long forgotten (let's just
+forget that this is written in C# which uses semicolons for a second).
+
+So what does that mean for our EDI file? What IS an EDI file? An EDI file is a
+list of lines. What is each of those lines? Why, it's a segment! And what is a
+segment? It's a list of values, separated by asterisks instead of commas! So
+what does that make an EDI document? It makes it a glorified CSV is what it
+makes it! (Obviously I exaggerate. EDI was pretty damn sophisticated for the
+day, and there's a reason people still use it, but bear with me here. There's a
+point to all this.)
+
+Now here's the thing. You can't treat a list of lines like an object with
+properties and such. It just doesn't work. You have to conform your code to
+your datastructure, rather than trying to conform your datastructure to your
+code. Which brings us to...
+
+** What do most C# EDI libraries do wrong?
+Most EDI libraries try to treat EDI documents as objects. In doing so they
+assign numerous aribtrary unnecessary constraints to the relatively simple, if
+utterly prepossessing EDI document.
+
+So the workflow is something like this. You get a document template (or worse,
+have to create one) like say... an X12 210. So you have (or make) an 210 class
+that looks something like this:
+
+#+BEGIN_SRC C#
+    [EdiMessage]
+    public class Invoice
+    {
+        #region Header Trailer
+
+        [EdiValue("X(3)", Path = "ST/0", Description = "ST01 - Transaction Set ID Code")]
+        public string TransactionSetIDCode { get; set; }
+
+        // ...
+
+        [EdiValue("X(9)", Path = "SE/1", Description = "SE02 - Transaction Set Control Number")]
+        public string TransactionSetControlNumber2 { get; set; }
+
+        #endregion
+
+        [EdiValue("X(1)", Path = "B3/0", Description = "B301 - Shipment Qualifier")]
+        public string ShipmentQualifier { get; set; }
+
+        [EdiValue("X(22)", Path = "B3/1", Description = "B302 - Invoice Number")]
+        public string InvoiceNumber { get; set; }
+
+        [EdiValue("X(30)", Path = "B3/2", Description = "B303 - Shipment Identification Number")]
+        public string ShipmentIdentificationNumber { get; set; }
+
+        // ...
+
+        public List<LineItem> LineItems { get; set; }
+    }
+#+BEGIN_SRC
+
+And then, you create another class with a method that iterates through that
+entire class again, which means YOU have to iterate through the entire document
+schema again, this time to assign the properties to their values.
+
+If you have a template, like the kind EDI Fabric provides, it is of course,
+easier, but you still have to iterate through the entire document structure at
+least once.
+
+The trouble is that you've gone value by value over the entire document, while
+the class obfuscates the fact that that's what you're doing. Effectively the
+class is useless in terms of actually saving you time, and all it does is hide
+the extra step of spitting your values into a file with asterisks between your
+values and squiggles (~) at the end of your lines. Your mental overhead isn't
+decreased by using the classes and utils of these libraries because you still
+have to understand the spec of the EDI document you're trying to work with. You
+still have to go segment by segment, alphanumeric nonsense-name after
+alphanumeric nonsense-name, and learn the spec, which means that the classes and
+libraries don't save you the mental overhead of translating directly between
+your native data types/ objects and your EDI documents. All these libraries do
+is hide the fact that what you're working with is not some weird,
+human-unreadable thing; it's just a list of lines! A glorified CSV!
+
+And with that I present to you:
+
+** The SF EDI Approach: Build a List of Lines!
+And that's the point of this library, to enable you to build a list of lines and
+then put the requisite asterisks and squiggles in to turn it into an EDI
+document.
+
+Let's take a look at some code and see what exactly we're doing with it.
+
+#+BEGIN_SRC C#
+     List<Segment> document = new List<Segment>();
+
+     Segment isa = new Segment("ISA");
+     Element isa01 = new Element(typeof(string), 2);         isa01.AddValue("00");               isa.Add(isa01);
+     Element isa02 = new Element(typeof(string), 10);        isa02.AddValue(" ");                isa.Add(isa02);
+     Element isa03 = new Element(typeof(string), 2);         isa03.AddValue("00");               isa.Add(isa03);
+     Element isa04 = new Element(typeof(string), 10);        isa04.AddValue(" ");                isa.Add(isa04);
+     Element isa05 = new Element(typeof(string), 2);         isa05.AddValue("02");               isa.Add(isa05);
+     Element isa06 = new Element(typeof(string), 15);        isa06.AddValue("SenderID");         isa.Add(isa06);
+     Element isa07 = new Element(typeof(string), 2);         isa07.AddValue("12");               isa.Add(isa07);
+     Element isa08 = new Element(typeof(string), 15);        isa08.AddValue("ReceiverID");       isa.Add(isa08);
+     Element isa09 = new Element(typeof(string), 6);
+         isa09.AddValue(DateTime.Now.ToString("yyMMdd"));                                        isa.Add(isa09);
+     Element isa10 = new Element(typeof(string), 4);
+         isa10.AddValue(DateTime.Now.ToString("HHmm"));                                          isa.Add(isa10);
+     Element isa11 = new Element(typeof(string), 1);         isa11.AddValue("U");                isa.Add(isa11);
+     Element isa12 = new Element(typeof(string), 5);         isa12.AddValue("00401");            isa.Add(isa12);
+     Element isa13 = new Element(typeof(int), 9);            isa13.AddValue(controlNumber);      isa.Add(isa13);
+     Element isa14 = new Element(typeof(string), 1);         isa14.AddValue("0");                isa.Add(isa14);
+     Element isa15 = new Element(typeof(string), 1);         isa15.AddValue("T");                isa.Add(isa15);
+     Element isa16 = new Element(typeof(string), 1);         isa16.AddValue(";");                isa.Add(isa16);
+                                                                                              document.Add(isa);
+
+    using (var writer = new StreamWriter(File.Open(@"..\..\..\out.edi", FileMode.Create)))
+    {
+        foreach (Segment s in document)
+        {
+            writer.NewLine = "\n";
+            writer.WriteLine(s.GetLine());
+        }
+    }
+#+END_SRC
+
+So what in the barnacle-laden tarnation are we looking at here? We'll take it
+from the top.
+
+There are two classes in sfEDI. The first is the Segment. What is a Segment? a
+Segment is a line. And what is a line? It's a list of values. In EDI, the values
+are called Elements, which is the second class in sfEDI. Now, as you recall, an
+EDI document is a list of lines spit out into a file. Thus we create a document,
+conveniently named document, which is quite literally a list of lines or, in EDI
+speak, segments. Unfortunately, at the start, it's quite empty, so we're going
+to have to put a line in it. So we create a segment inconveniently titled isa,
+which is the first line of any X12 4010 EDI document, and probably some others
+too. The reason our segments our named the way they are is because what they're
+named in the spec, in this case, the X12 4010 specification. You should be
+provided a spec if you have to build something for somebody and unfortunately,
+you're going to have to bite the bullet: read it and understand it. Nomenclature
+tangents aside, we create a new Segment, which is a list of values (Elements).
+Now we name segments which is the value "ISA" given in the object initializer
+function. This name is actually the zeroth element of a segment, and is how the
+document readers know what the first, second, etc. elements of a segment mean.
+Well anyway, our actual Segment is empty of all it's elements and thus of all
+value, so we need to add Elements.
+
+Our first element is isa01, the first element in the segment. In one line, we
+initialize isa01 as a new element, add the relevant value, and add the element
+to the segment isa (don't forget this part!). We do this with the other 15
+segments of isa as well, then finally we add the segment isa, to the document
+(don't forget this part either! The reason all <list>.Add(<thing>); statements
+are in one column is so I can quickly look over them and make sure I haven't
+mmissed one).
+
+The Element initializer function accepts anywhere from one to four arguments.
+The example only shows us using 2 of those arguments, but I'll explain what each of them
+do:
+
+#+BEGIN_SRC C#
+    public Element(Type elementType);
+    public Element(Type elementType, int max);
+    public Element(Type elementType, int min, int max);
+    public Element(Type elementType, int min, int max, int decimalPlace);
+#+END_SRC
+
+Type elementType: This is the datatype that we expect the value of our element
+to be. Right now the only acceptable answers are int, string, and decimal. You
+have to use typeof(<your type>) to make sure you're really passing a
+type, otherwise you get errors. So far the only acceptable types are int,
+string, decimal, and double.
+
+max: This is the maximum length of your stringified value. EDI is a plaintext
+format, so everything ends up converted to string in the end. If you assign a
+non-null value, and don't assign a min, then the element will be padded out to
+the max length, either with whitespace, if the elementType == string, or leading
+zeroes if the elementType is int or decimal. Whitespace counts as non-null.
+
+min: The minimum length of your stringified value. Use this only if your spec
+allows variable lengths for the element. If the element is optional, you don't
+need to assign a minimum of zero, you just need to not assign a value.
+
+decimalPlace: specifies where the edi spec expects an implicit decimal to be.
+For instance if decimalPlace == 2, then 3.14 should be converted to 314. If
+decimalPlace == 3, then it should be 3140. You should only be using this with
+numeric types (I hope that goes without saying).
+
+Anywho. There's only one public method of the Element, and that's AddValue,
+which is shown above in the example code. It adds a value to the element, and
+checks to make sure the value fulfills all your requirements, like type and
+length requirements.
+
+Now let's return to our already constructed segment. If you look at the class
+definition for a segment, you'll see that it's fairly simple:
+
+#+BEGIN_SRC C#
+    class Segment
+    {
+        public string SegmentID { get; set; }
+        public List<Element> Elements { get; set; }
+        public void Add(Element element) { Elements.Add(element); }
+
+        public string GetLine()
+        {
+            string result = SegmentID;
+
+            foreach (Element e in Elements)
+            {
+                result += "*";
+                result += e.Value;
+
+            }
+
+            result += "~";
+            return result;
+        }
+        public Segment(string id)
+        {
+            this.Elements = new List<Element>();
+            this.SegmentID = id;
+        }
+    }
+#+END_SRC
+
+That's the entire class. The only really important thing to note here is the
+GetLine() method, which brings us to our mighty and fearful asterisks and
+squiggles! The GetLine method takes our list of Elements (the Elements property)
+and concatenates them into a single, asterisk separated string, and caps it off
+with a squiggle. That's pretty easy in the end right? Most of the actual work
+was done in the Element class.
+
+So let's look at the output of GetLine of our ISA:
+#+BEGIN_SRC
+ISA*00*          *00*          *02*SenderID       *12*ReceiverID     *200415*1007*U*00401*000000001*0*T*;~
+#+END_SRC
+Well, that looks about right. We got whitespace where we assigned whitespace,
+values where we assigned values, and things all seem to work out.
+
+Phew! Almost there! So now we have to write it all to a file: How do we do it?
+Simple! we use Microsoft's built in StreamWriter:
+
+#+BEGIN_SRC C#
+    using (var writer = new StreamWriter(File.Open(@"..\..\..\out.edi", FileMode.Create)))
+    {
+        foreach (Segment s in document)
+        {
+            writer.NewLine = "\n";
+            writer.WriteLine(s.GetLine());
+        }
+    }
+#+END_SRC
+
+And that's how you build an EDI file the SF EDI way! No obfuscation! No tricks.
+Conformant to the datastructure instead of trying to force it into being more of
+an object than a list. Decoding is basically the same as the above, but in
+reverse. EDI simplified. And if you still find EDI too difficult or annoying,
+then you should [[mailto:acgollapalli@jnasquare.com][call up my consultancy, JNA Square]], and we'll help you get going with it!

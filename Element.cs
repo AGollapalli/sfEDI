@@ -41,12 +41,6 @@ namespace sfEDI
 
             if (v == "") { return v; }
 
-            if (v == "UNKNOWN")
-            {
-                Console.WriteLine("Value of 'UNKNOWN' is not acceptable, item left blank.");
-                return "";
-            }
-
             if (val.GetType() == ElementType)
             {
                 if (DecimalPlace != null)
@@ -76,12 +70,14 @@ namespace sfEDI
                                 }
                                 else
                                 {
-                                    if (ElementType == typeof(int))
+                                    if (ElementType == typeof(int)
+                                        || ElementType == typeof(decimal)
+                                        || ElementType == typeof(double))
                                     {
                                         v = v.PadLeft((int)Max, '0');
                                         return v;
                                     }
-                                    else { throw new Exception("ElementType must be int or string (we can't handle anything else)"); }
+                                    else { throw new Exception("ElementType must be int, string, decimal, or double"); }
                                 }
 
                             }
