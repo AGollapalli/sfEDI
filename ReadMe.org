@@ -27,6 +27,8 @@ serializing to EDI. Deserialization functions coming soon!
 Before you install it, I'd read the rest of the readme first. But here are the
 directions:
 
+Using the dotnet cli:
+
 #+BEGIN_SRC
     dotnet add package sfEDI
 #+END_SRC
