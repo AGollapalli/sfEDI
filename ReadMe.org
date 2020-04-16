@@ -1,25 +1,41 @@
 #+TITLE: SF EDI (sfEDI)
 
 ** What is SF EDI?
-SF EDI is an EDI library. The S in SF EDI stands for "simple" and I'll allow you
-to guess what the F means. If you've been frustrated, bamboozled, kerfuffled, or
-otherwise stymied by other EDI libraries, well boy have I got the library for
-you! In 150 lines of C#, I've provided the simple utils required to build EDI
-documents in the dotnet ecosystem, without ridiculous overcomplication, weird
-constraints, COBOL syntax (yes, it's a thing), randomly having your library stop
-working after two weeks because the nuget package you downloaded turned out to
-be not so free even though it used to be free (EDI Fabric I'm looking at you),
-and the fork of it turned out to not support some crucial feature that you
-needed. And despite every ounce of your highly sophisticated, slightly
-hacker-hipsterish body yelling at you to tell them "Let's just build a REST API,
-and use JSON!!!", you can't, because EDI is what the industry uses, and that's
-what your company/client wants, and so that's what you're going to build, until
-you can convince the people who actually decide what you get to do to move to a
-fancy event driven architecture with your perfect, pretty stream-processer/
-dynamic web-api builder built on top of a bitemporal graph database written in a
-lisp. (I swear that's not a meme, <insert link to dataworks-prototype here>)
+SF EDI is an EDI library for dotnet core. The S in SF EDI stands for "simple"
+and I'll allow you to guess what the F means. If you've been frustrated,
+bamboozled, kerfuffled, or otherwise stymied by other EDI libraries, well boy
+have I got the library for you! In 150 lines of C#, I've provided the simple
+utils required to build EDI documents in the dotnet ecosystem, without
+ridiculous overcomplication, weird constraints, COBOL syntax (yes, it's a
+thing), randomly having your library stop working after two weeks because the
+nuget package you downloaded turned out to be not so free even though it used to
+be free (EDI Fabric I'm looking at you), and the fork of it turned out to not
+support some crucial feature that you needed. And despite every ounce of your
+highly sophisticated, slightly hacker-hipsterish body yelling at you to tell
+them "Let's just build a REST API, and use JSON!!!", you can't, because EDI is
+what the industry uses, and that's what your company/client wants, and so that's
+what you're going to build, until you can convince the people who actually
+decide what you get to do to move to a fancy event driven architecture with your
+perfect, pretty stream-processer/ dynamic web-api builder built on top of a
+bitemporal graph database written in a lisp. (I swear that's not a meme, <insert
+link to dataworks-prototype here>)
 
-Anyway, the truth of the matter is that EDI is old tech. It's tech from the
+A few notes before we begin. I've only written the parts suitable for
+serializing to EDI. Deserialization functions coming soon!
+
+** Installation
+Before you install it, I'd read the rest of the readme first. But here are the
+directions:
+
+#+BEGIN_SRC
+    dotnet add package sfEDI
+#+END_SRC
+
+You can also use the nuget package manager in visual studio.
+
+** SF EDI isn't just a library, it's an approach
+
+The truth of the matter is that EDI is old tech. It's tech from the
 early days of the cold war, and like all old tech, it's not written in the way
 that we think now, it's written in the old ways. While we young guys think in
 objects (like JSON, JavaScript OBJECT Notation), the old guys thought in lines.
@@ -42,9 +58,10 @@ day, and there's a reason people still use it, but bear with me here. There's a
 point to all this.)
 
 Now here's the thing. You can't treat a list of lines like an object with
-properties and such. It just doesn't work. You have to conform your code to
-your datastructure, rather than trying to conform your datastructure to your
-code. Which brings us to...
+properties and such. You have to conform your code to your datastructure, rather
+than trying to conform your datastructure to your code. This is why SF EDI isn't
+just a library, but an approach, and the biggest aspect of an approach is that
+it not be the wrong approach, which brings us to...
 
 ** What do most C# EDI libraries do wrong?
 Most EDI libraries try to treat EDI documents as objects. In doing so they
@@ -280,9 +297,8 @@ Simple! we use Microsoft's built in StreamWriter:
 
 And that's how you build an EDI file the SF EDI way! No obfuscation! No tricks.
 Conformant to the datastructure instead of trying to force it into being more of
-an object than a list. Decoding is basically the same as the above, but in
-reverse. EDI simplified. And if you still find EDI too difficult or annoying,
-then you should [[mailto:acgollapalli@jnasquare.com][call up my consultancy, JNA Square]], and we'll help you get going
-with it! If you're looking to move away from EDI to a more modern (newfangled?)
-approach, like using REST API's or stream processing, then you should also
-contact us, as we're B2B integration and automation specialists!
+an object than a list. EDI simplified! And if you still find EDI too difficult
+or annoying, or if you're looking to move away from EDI to a more modern
+(newfangled?) approach, like using REST API's or stream processing, then you
+should [[mailto:acgollapalli@jnasquare.com][call up my consultancy, JNA Square]], and we'll help you get going ! We're
+B2B integration and automation specialists!
