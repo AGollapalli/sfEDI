@@ -212,22 +212,21 @@ do:
 #+END_SRC
 
 Type elementType: This is the datatype that we expect the value of our element
-to be. Right now the only acceptable answers are int, string, and decimal. You
-have to use typeof(<your type>) to make sure you're really passing a
+to be.You have to use typeof(<your type>) to make sure you're really passing a
 type, otherwise you get errors. So far the only acceptable types are int,
 string, decimal, and double.
 
-max: This is the maximum length of your stringified value. EDI is a plaintext
+int max: This is the maximum length of your stringified value. EDI is a plaintext
 format, so everything ends up converted to string in the end. If you assign a
 non-null value, and don't assign a min, then the element will be padded out to
 the max length, either with whitespace, if the elementType == string, or leading
 zeroes if the elementType is int or decimal. Whitespace counts as non-null.
 
-min: The minimum length of your stringified value. Use this only if your spec
+int min: The minimum length of your stringified value. Use this only if your spec
 allows variable lengths for the element. If the element is optional, you don't
 need to assign a minimum of zero, you just need to not assign a value.
 
-decimalPlace: specifies where the edi spec expects an implicit decimal to be.
+int decimalPlace: specifies where the edi spec expects an implicit decimal to be.
 For instance if decimalPlace == 2, then 3.14 should be converted to 314. If
 decimalPlace == 3, then it should be 3140. You should only be using this with
 numeric types (I hope that goes without saying).
