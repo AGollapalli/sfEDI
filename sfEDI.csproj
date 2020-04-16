@@ -4,14 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>sfEDI</PackageId>
     <Version>0.5.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>EDI;Simple;serializer;serialization</PackageTags>
     <Authors>Akshay C. Gollapalli</Authors>
     <Company>JNA Square</Company>
+    <Title>sfEDI: Simple EDI in dotnet Core.</Title>
     <Description>
         A simple EDI library for dotnet core, that doesn't obscure what you're
         doing when building an EDI serializer. At the moment, serialization
         only.
     </Description>
+    <RepositoryUrl>
+       https://raw.githubusercontent.com/AGollapalli/sfEDI/master/ReadMe.org
+   </RepositoryUrl>
   </PropertyGroup>
 
 </Project>
