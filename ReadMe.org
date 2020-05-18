@@ -17,8 +17,7 @@ what the industry uses, and that's what your company/client wants, and so that's
 what you're going to build, until you can convince the people who actually
 decide what you get to do to move to a fancy event driven architecture with your
 perfect, pretty stream-processer/ dynamic web-api builder built on top of a
-bitemporal graph database written in a lisp. (I swear that's not a meme, <insert
-link to dataworks-prototype here>)
+bitemporal graph database written in a lisp. (I swear that's not a meme, I wrote one: [[https://github.com/acgollapalli/dataworks][dataworks]])
 
 A few notes before we begin. I've only written the parts suitable for
 serializing to EDI. Deserialization functions coming soon!
